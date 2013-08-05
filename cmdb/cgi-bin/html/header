@@ -1,0 +1,53 @@
+Content-type: text/html
+
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMDB System Maintenance</title>
+    <meta name="description" content="CMDB System Maintenance">
+
+    <style type="text/css">
+
+      body {
+        background-color: #6B8FAF;
+        background-image: url('/images/background.jpg');
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-size: contain;
+        background-size: inherit;
+
+        -moz-background-size:100% 100%;
+        -webkit-background-size:100% 100%;
+        background-size:100% 100%;
+      }
+
+      #page-wrap {
+        position: relative;
+        width: 1150px; 
+        margin-top: 2%;
+        margin-left: 5%;
+        margin-right: 5%;
+        padding: 1em;
+        border: solid 1px white;
+        background: white;
+        border: solid 1px white;
+        -moz-box-shadow: 0 0 20px black;
+        -webkit-box-shadow: 0 0 20px black;
+        box-shadow: 0 0 20px black;
+      }
+
+      #content {
+        margin-top: 3em;
+        margin-left: 4%;
+        margin-right: 4%;
+        padding: 1em;
+        border: solid 1px white;
+        background: white;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <div id="page-wrap"><font size=1>

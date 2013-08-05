@@ -1,0 +1,23 @@
+
+VHost entry:
+
+<VirtualHost *:80>
+  ServerName cmdb.example.co.uk
+  DocumentRoot /var/www/cmdb/html
+  ScriptAlias /cmdb/ /var/www/cmdb/cgi-bin/
+
+  <Directory /var/www/cmdb/>
+    AllowOverride AuthConfig
+    AuthType Basic
+    AuthName "Restricted Files"
+    AuthBasicProvider file
+    AuthUserFile /var/www/cmdb/htpasswds
+    Require valid-user
+  </Directory>
+
+  ErrorLog /var/log/httpd/cmdb_error.log
+  LogLevel warn
+  CustomLog /var/log/httpd/cmdb_access.log combined
+  ServerSignature On
+</VirtualHost>
+

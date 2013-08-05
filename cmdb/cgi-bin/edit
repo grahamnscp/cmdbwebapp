@@ -1,0 +1,517 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+
+
+# 
+# Main
+#
+output_page_header
+
+cgi = CGI.new
+params = cgi.params # hash with field-names and values
+
+fqdn = params['fqdn'].to_s if params.has_key?"fqdn"
+
+read_from_cmdb=true
+managedserver = Hash.new
+disk_entry = Hash.new
+nic1_entry = Hash.new
+nic2_entry = Hash.new
+
+puts "<h1>System Edit: " + fqdn + "</h1>"
+
+# Read system from CMDB:
+managedserver = read_server_by_fqdn(fqdn)
+
+if managedserver.to_s.empty? then
+  puts "<br>"
+  puts "<font color=red>Something went wrong, server ("+ fqdn +") not found in CMDB</font><br><br>"
+  puts "<form><input type='button' value='Go Back' onclick='history.go(-1);return true;'></form>"
+  exit 1
+end
+
+# Break out the dn for children lookups
+dn = managedserver['dn'].to_s
+
+# Enhancement, read number of disks incase there is more than one and handle in loop, same for nic > 2
+disk_entry = read_disk_by_dn(dn,"1")
+
+nic1_entry = read_nic_by_dn(dn, "1")
+nic2_entry = read_nic_by_dn(dn, "2")
+
+puts "<form Method='POST' action= '/cmdb/show'>"
+
+puts "  <p><input type='hidden' name='posted' value='edit'>"
+
+puts "<table>"
+
+puts "<tr>"
+#hostName, cn, dn
+puts "<td align=right><b>* Hostname:</b></td><td>"+managedserver['cn'].to_s+"."+$domainname+"</td>"
+puts "  <p><input type='hidden' name='cn' value='"+managedserver['cn'].to_s+"'>"
+puts "  <p><input type='hidden' name='hostName' value='"+managedserver['cn'].to_s+$domainname+"'>"
+#                                                                 vCluster
+puts "<td align=right><b>vCluster:</b></td><td>"
+puts "  <select name='vCluster'>"
+File.open($lov_vcluster).readlines.each do |fval|
+  if fval.strip == managedserver['vCluster'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#location
+puts "<td align=right><b>Location:</b></td><td>"
+puts "  <select name='location'>"
+File.open($lov_location).readlines.each do |fval|
+  if fval.strip == managedserver['location'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td>"
+
+#                                                                vDataCentre
+puts "<td align=right><b>vDataCenter:</b></td><td>"
+puts "  <select name='vDataCentre'>"
+File.open($lov_vdatacentre).readlines.each do |fval|
+  if fval.strip == managedserver['vDataCentre'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#environment
+puts "<td align=right><b>Environment:</b></td><td>"
+puts "  <select name='environment'>"
+File.open($lov_environment).readlines.each do |fval|
+  if fval.strip == managedserver['environment'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td>"
+
+#                                                                 vESXHost
+puts "<td align=right><b>vESXHost:</b></td><td>"
+puts "  <select name='vESXHost'>"
+File.open($lov_vesxhost).readlines.each do |fval|
+  if fval.strip == managedserver['vESXHost'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#virtual
+puts "<td align=right><b>* Virtual:</b></td><td>"
+if managedserver['virtual'].to_s == "TRUE" then
+  puts "    <input type='checkbox' name='virtual' value='TRUE' checked>"
+else
+  puts "    <input type='checkbox' name='virtual' value='"+managedserver['virtual'].to_s+"'>"
+end
+puts "</td>"
+
+#                                                                 vMemory
+puts "<td align=right><b>vMemory:</b></td><td>"
+puts "  <input type='text' size='15' name='vMemory' value='"+managedserver['vMemory'].to_s+"'><br>"
+puts "</td></tr>"
+
+puts "<tr>"
+#serverClass
+puts "<td align=right><b>serverClass:</b></td><td>"
+puts "  <input type='text' size='15' name='serverClass' value='"+managedserver['serverClass'].to_s+"'><br>"
+puts "</td>"
+
+#                                                                 vSockets
+puts "<td align=right><b>vSockets:</b></td><td>"
+puts "  <select name='vSockets'>"
+File.open($lov_vsockets).readlines.each do |fval|
+  if fval.strip == managedserver['vSockets'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#osType
+puts "<td align=right><b>* OS Type:</b></td><td>"
+puts "  <select name='operatingSystem'>"
+File.open($lov_operatingsystem).readlines.each do |fval|
+  if fval.strip == managedserver['operatingSystem'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td>"
+
+#                                                                 vCores
+puts "<td align=right><b>vCores:</b></td><td>"
+puts "  <select name='vCores'>"
+File.open($lov_vcores).readlines.each do |fval|
+  if fval.strip == managedserver['vCores'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#osVersion
+puts "<td align=right><b>* OS Version:</b></td><td>"
+puts "  <select name='osVersion'>"
+File.open($lov_osversion).readlines.each do |fval|
+  if fval.strip == managedserver['osVersion'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td>"
+
+#                                                                  vTemplate
+puts "<td align=right><b>vTemplate:</b></td><td>"
+puts "  <input type='text' size='15' name='vTemplate' value='"+managedserver['vTemplate'].to_s+"'><br>"
+puts "</td></tr>"
+
+puts "<tr>"
+#manufacturer
+puts "<td align=right><b>Manufacturer:</b></td><td>"
+puts "  <input type='text' size='15' name='manufacturer' value='"+managedserver['manufacturer'].to_s+"'><br>"
+puts "</td><td>&nbsp;</td><td>&nbsp;</td></tr>"
+
+puts "<tr>"
+#model
+puts "<td align=right><b>Model:</b></td><td>"
+puts "  <input type='text' size='15' name='model' value='"+managedserver['model'].to_s+"'><br>"
+puts "</td>"
+
+#                                                                  description
+puts "<td align=right><b>Description:</b></td><td>"
+puts "  <input type='text' size='50' name='description' value='"+managedserver['description'].to_s+"'><br>"
+puts "</td></tr>"
+
+puts "<tr>"
+#serverOwner
+puts "<td align=right><b>serverOwner:</b></td><td>"
+puts "  <input type='text' size='15' name='serverOwner' value='"+managedserver['serverOwner'].to_s+"'><br>"
+puts "</td>"
+
+#                                                                  serverRole
+puts "<td align=right><b>* serverRoles:</b></td><td>"
+puts "  <select name='serverRole' size='2' multiple>"
+File.open($lov_serverrole).readlines.each do |fval|
+  if managedserver['serverRole'].include? fval.strip
+    puts "    <option selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#cobblerProfile
+puts "<td align=right><b>* cobblerProfile:</b></td><td>"
+puts "  <select name='cobblerProfile'>"
+File.open($lov_cobblerprofile).readlines.each do |fval|
+  if fval.strip == managedserver['cobblerProfile'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td>"
+
+#                                                                 rhnActivationKey
+puts "<td align=right><b>* rhnActivationKey:</b></td><td>"
+puts "  <select name='rhnActivationKey'>"
+File.open($lov_rhnactivationkey).readlines.each do |fval|
+  if fval.strip == managedserver['rhnActivationKey'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#rhnBaseChannel
+puts "<td align=right><b>* rhnBaseChannel:</b></td><td>"
+puts "  <select name='rhnBaseChannel'>"
+File.open($lov_rhnbasechannel).readlines.each do |fval|
+  if fval.strip == managedserver['rhnBaseChannel'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td>"
+
+#                                                                   nameServer
+puts "<td align=right><b>Name Servers:</b></td><td>"
+puts "  <select name='nameServer' size='2' multiple>"
+File.open($lov_nameserver).readlines.each do |fval|
+  if managedserver['nameServer'].include? fval.strip
+    puts "    <option selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<tr>"
+#rhnChildChannel	M
+puts "<td align=right><b>rhnChildChannels:</b></td><td>"
+puts "  <select name='rhnChildChannel' size='6' multiple>"
+File.open($lov_rhnchildchannel).readlines.each do |fval|
+  if managedserver['rhnChildChannel'].include? fval.strip
+    puts "    <option selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td>"
+
+#timeServer	M
+puts "<td align=right><b>Time Servers:</b></td><td>"
+puts "  <select name='timeServer' size='2' multiple>"
+File.open($lov_timeserver).readlines.each do |fval|
+  if managedserver['timeServer'].include? fval.strip
+    puts "    <option selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option>"+fval.strip+"</option>"
+  end
+end
+puts "  </select>"
+puts "</td></tr>"
+
+puts "<table>"
+
+
+puts "<br><b>Disks:</b>"
+
+puts "<table>"
+
+#disk1
+puts "<tr>"
+puts "<td align=left><b>1)&nbsp;&nbsp;</b></td>"
+puts "<td>"+disk_entry['cn'].to_s+" :</td>"
+puts "<p><input type='hidden' name='disk1_cn' value='"+disk_entry['cn'].to_s+"'>"
+puts "<td align=right><b>* Size (GB):</b></td>"
+puts "<td><input type='text' size='5' name='disk1_size' value='"+disk_entry['size'].to_s+"'></td>"
+puts "<td align=right><b>* Device Alias:</b></td>"
+puts "<td><input type='text' size='10' name='disk1_deviceAlias' value='"+disk_entry['deviceAlias'].to_s+"'></td>"
+puts "<td align=right><b>* Storage Location:</b></td>"
+puts "<td><select name='disk1_storageLocation'>"
+File.open($lov_diskstoragelocation).readlines.each do |fval|
+  if fval.strip == disk_entry['storageLocation'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>* Interface:</b></td>"
+puts "<td><input type='text' size='10' name='disk1_interface' value='"+disk_entry['interface'].to_s+"'></td>"
+puts "</tr>"
+
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Provisioning:</b></td>"
+puts "<td><input type='text' size='10' name='disk1_provisioning' value='"+disk_entry['provisioning'].to_s+"'></td>"
+puts "<td align=right><b>Description:</b></td>"
+puts "<td colspan=4><input type='text' size='45' name='disk1_description' value='"+disk_entry['description'].to_s+"'></td>"
+puts "</tr>"
+
+puts "</table>"
+
+
+puts "<br><b>NICs:</b>"
+
+puts "<table>"
+
+#nic1
+puts "<tr>"
+puts "<td align=left><b>1)&nbsp;&nbsp;</b></td>"
+puts "<td>"+nic1_entry['cn'].to_s+" :</td>"
+puts "<p><input type='hidden' name='nic1_cn' value='"+nic1_entry['cn'].to_s+"'>"
+puts "<td align=right><b>* IP Address:</b></td>"
+puts "<td><input type='text' size='16' name='nic1_ipHostNumber' value='"+nic1_entry['ipHostNumber'].to_s+"'></td>"
+puts "<td align=right><b>* Netmask:</b></td>"
+puts "<td><input type='text' size='16' name='nic1_ipNetmaskNumber' value='"+nic1_entry['ipNetmaskNumber'].to_s+"'></td>"
+puts "<td align=right><b>* Gateway:</b></td>"
+puts "<td><input type='text' size='16' name='nic1_gateway' value='"+nic1_entry['gateway'].to_s+"'></td>"
+puts "<td align=right><b>mac Address:</b></td>"
+puts "<td><input type='text' size='17' name='nic1_macAddress' value='"+nic1_entry['macAddress'].to_s+"'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td>"
+puts "<td><input type='text' size='10' name='nic1_ifType' value='"+nic1_entry['ifType'].to_s+"'></td>"
+puts "<td align=right><b>* onBoot:</b></td>"
+if nic1_entry['onBoot'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic1_onBoot' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic1_onBoot' value='"+nic1_entry['onBoot'].to_s+"'></td>"
+end
+puts "<td align=right><b>Boot Proto:</b></td>"
+puts "<td><input type='text' size='10' name='nic1_bootProto' value='"+nic1_entry['bootProto'].to_s+"'></td>"
+puts "<td align=right><b>pxeBoot:</b></td>"
+if nic1_entry['pxeBoot'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic1_pxeBoot' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic1_pxeBoot' value='"+nic1_entry['pxeBoot'].to_s+"'></td>"
+end
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* vLAN:</b></td>"
+if nic1_entry['vLAN'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic1_vlan' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic1_vlan' value='"+nic1_entry['vLAN'].to_s+"'></td>"
+end
+puts "<td align=right><b>* bridge:</b></td>"
+puts "<td><select name='nic1_bridge'>"
+File.open($lov_nicbridge).readlines.each do |fval|
+  if fval.strip == nic1_entry['bridge'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>master:</b></td>"
+puts "<td><input type='text' size='5' name='nic1_master' value='"+nic1_entry['master'].to_s+"'></td>"
+puts "<td align=right><b>slave:</b></td>"
+if nic1_entry['slave'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic1_slave' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic1_slave' value='"+nic1_entry['slave'].to_s+"'></td>"
+end
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Bonding Opts:</b></td>"
+puts "<td><input type='text' size='10' name='nic1_bondingOptions' value='"+nic1_entry['bondingOptions'].to_s+"'></td>"
+puts "<td align=right><b>ethToolOpts:</b></td>"
+puts "<td><input type='text' size='10' name='nic1_ethToolOptions' value='"+nic1_entry['ethToolOptions'].to_s+"'></td>"
+puts "<td align=right><b>Description:</b></td>"
+puts "<td colspan=3><input type='text' size='50' name='nic1_description' value='"+nic1_entry['description'].to_s+"'></td>"
+puts "</tr>"
+
+puts "<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>"
+#nic2
+puts "<tr>"
+puts "<td align=left><b>2)&nbsp;&nbsp;</b></td>"
+puts "<td>"+nic2_entry['cn'].to_s+" :</td>"
+puts "<p><input type='hidden' name='nic2_cn' value='"+nic2_entry['cn'].to_s+"'>"
+puts "<td align=right><b>* IP Address:</b></td>"
+puts "<td><input type='text' size='16' name='nic2_ipHostNumber' value='"+nic2_entry['ipHostNumber'].to_s+"'></td>"
+puts "<td align=right><b>* Netmask:</b></td>"
+puts "<td><input type='text' size='16' name='nic2_ipNetmaskNumber' value='"+nic2_entry['ipNetmaskNumber'].to_s+"'></td>"
+puts "<td align=right><b>Gateway:</b></td>"
+puts "<td><input type='text' size='16' name='nic2_gateway' value='"+nic2_entry['gateway'].to_s+"'></td>"
+puts "<td align=right><b>mac Address:</b></td>"
+puts "<td><input type='text' size='17' name='nic2_macAddress' value='"+nic2_entry['macAddress'].to_s+"'></td>"
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* IF Type:</b></td>"
+puts "<td><input type='text' size='10' name='nic2_ifType' value='"+nic2_entry['ifType'].to_s+"'></td>"
+puts "<td align=right><b>* onBoot:</b></td>"
+if nic2_entry['onBoot'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic2_onBoot' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic2_onBoot' value='"+nic2_entry['onBoot'].to_s+"'></td>"
+end
+puts "<td align=right><b>Boot Proto:</b></td>"
+puts "<td><input type='text' size='10' name='nic2_bootProto' value='"+nic2_entry['bootProto'].to_s+"'></td>"
+puts "<td align=right><b>pxeBoot:</b></td>"
+if nic2_entry['pxeBoot'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic2_pxeBoot' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic2_pxeBoot' value='"+nic2_entry['pxeBoot'].to_s+"'></td>"
+end
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>* vLAN:</b></td>"
+if nic2_entry['vLAN'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic2_vlan' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic2_vlan' value='"+nic2_entry['vLAN'].to_s+"'></td>"
+end
+puts "<td align=right><b>* bridge:</b></td>"
+puts "<td><select name='nic2_bridge'>"
+File.open($lov_nicbridge).readlines.each do |fval|
+  if fval.strip == nic2_entry['bridge'].to_s then
+    puts "    <option value='"+fval.strip+"' selected='selected'>"+fval.strip+"</option>"
+  else
+    puts "    <option value='"+fval.strip+"'>"+fval.strip+"</option>"
+  end
+end
+puts "    </select></td>"
+puts "<td align=right><b>master:</b></td>"
+puts "<td><input type='text' size='5' name='nic2_master' value='"+nic2_entry['master'].to_s+"'></td>"
+puts "<td align=right><b>slave:</b></td>"
+if nic2_entry['slave'].to_s == "TRUE" then
+  puts "    <td><input type='checkbox' name='nic2_slave' value='TRUE' checked></td>"
+else
+  puts "    <td><input type='checkbox' name='nic2_slave' value='"+nic2_entry['slave'].to_s+"'></td>"
+end
+puts "</tr>"
+puts "<tr>"
+puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+puts "<td align=right><b>Bonding Opts:</b></td>"
+puts "<td><input type='text' size='10' name='nic2_bondingOptions' value='"+nic2_entry['bondingOptions'].to_s+"'></td>"
+puts "<td align=right><b>ethToolOpts:</b></td>"
+puts "<td><input type='text' size='10' name='nic2_ethToolOptions' value='"+nic2_entry['ethToolOptions'].to_s+"'></td>"
+puts "<td align=right><b>Description:</b></td>"
+puts "<td colspan=3><input type='text' size='50' name='nic2_description' value='"+nic2_entry['description'].to_s+"'></td>"
+puts "</tr>"
+puts "</table>"
+
+
+puts "  <br><input type='submit' value='Update Entry'>"
+puts "</form>"
+
+
+puts "<font size=+1><a href='/cmdb/list'>Home</a></font>"
+
+output_page_footer
+
+exit 0
+

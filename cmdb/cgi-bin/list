@@ -1,0 +1,59 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+
+#
+# resd_servers
+#
+def read_servers
+
+  filter = Net::LDAP::Filter.eq( "objectclass", "managedServer" )
+  attrs = [ ]
+
+  print <<EOF
+      <h1>System List:</h1>
+
+      <table>
+        <tr>
+          <th align=left>Hostname&nbsp;&nbsp;&nbsp;</th>
+          <th align=left>vDatacentre</th>
+          <th align=left>ESX Host</th>
+          <th align=left>OS Version</th>
+          <th align=left>cobblerProfile</th>
+          <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+EOF
+
+  $conn.search(:base => $basedomain,
+               :filter => filter) do |entry|
+    puts "        <tr>"
+    puts "          <td>#{entry.cn}</td>"
+    puts "          <td>#{entry.vDatacentre}&nbsp;&nbsp;</td>"
+    puts "          <td>#{entry.vESXHost}&nbsp;&nbsp;</td>"
+    puts "          <td>#{entry.osVersion}&nbsp;&nbsp;</td>"
+    puts "          <td>#{entry.cobblerProfile}</td>"
+    puts "          <td></td>"
+    puts "          <td><a href='/cmdb/show?fqdn=#{entry.hostName}'>Show</a></td>"
+    puts "          <td>|&nbsp;</td>"
+    puts "          <td><a href='/cmdb/edit?fqdn=#{entry.hostName}'>Edit</a></td>"
+  end
+  puts "      </table>"
+end
+
+# 
+# Main
+#
+output_page_header_list
+
+read_servers
+
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/create'>Create New</a></font>"
+
+output_page_footer
+exit 0
+

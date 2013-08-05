@@ -1,0 +1,434 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+
+
+#
+# Display managedServer entry
+#
+def display_server(server)
+
+  puts "<table>"
+
+  puts "<tr><td align=right><b>Hostname:&nbsp;&nbsp;</b></td><td>"+ server['hostName'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>vCluster:&nbsp;&nbsp;</b></td><td>"+ server['vCluster'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Location:&nbsp;&nbsp;</b></td><td>"+ server['location'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>vDataCentre:&nbsp;&nbsp;</b></td><td>"+ server['vDataCentre'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Environment:&nbsp;&nbsp;</b></td><td>"+ server['environment'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>vESXHost:&nbsp;&nbsp;</b></td><td>"+ server['vESXHost'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Virtual:&nbsp;&nbsp;</b></td><td>"+ server['virtual'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>vMemory:&nbsp;&nbsp;</b></td><td>"+ server['vMemory'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Server Class:&nbsp;&nbsp;</b></td><td>"+ server['serverClass'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>vSockets:&nbsp;&nbsp;</b></td><td>"+ server['vSockets'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>OS Type:&nbsp;&nbsp;</b></td><td>"+ server['operatingSystem'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>vCores:&nbsp;&nbsp;</b></td><td>"+ server['vCores'].to_s + "</td>"
+  puts "</tr>"
+  
+  puts "<tr><td align=right><b>OS Version:&nbsp;&nbsp;</b></td><td>"+ server['osVersion'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>vTemplate:&nbsp;&nbsp;</b></td><td>"+ server['vTemplate'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Manufacturer:&nbsp;&nbsp;</b></td><td>"+ server['manufacturer'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right></td><td></td>"
+  puts "</tr>"
+  
+  puts "<tr><td align=right><b>Server Model:&nbsp;&nbsp;</b></td><td>"+ server['model'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>Description:&nbsp;&nbsp;</b></td><td>"+ server['description'].to_s + "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>Server Owner:&nbsp;&nbsp;</b></td><td>"+ server['serverOwner'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>serverRoles:&nbsp;&nbsp;</b></td><td>"
+  srcount = 0
+  if !server['serverRole'].nil? then
+    server['serverRole'].each do |srole|
+      if srcount>0 then puts "<br>" end
+      srcount = srcount + 1
+      puts srole.to_s 
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+  puts "<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>"
+
+  puts "<tr><td align=right><b>Cobbler Profile:&nbsp;&nbsp;</b></td><td>"+ server['cobblerProfile'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>rhnActivationKey:&nbsp;&nbsp;</b></td><td>"+ server['rhnActivationKey'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr><td align=right><b>rhnBaseChannel:&nbsp;&nbsp;</b></td><td>"+ server['rhnBaseChannel'].to_s + "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>Name Servers:&nbsp;&nbsp;</b></td><td>"
+  nscount = 0
+  if !server['nameServer'].nil? then
+    server['nameServer'].each do |nsvr|
+      if nscount>0 then puts "<br>" end
+      nscount = nscount + 1
+      puts nsvr.to_s 
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+  puts "<tr><td align=right><b>rhnChildChannels:&nbsp;&nbsp;</b></td><td>"
+  chcount = 0
+  if !server['rhnChildChannel'].nil? then
+    server['rhnChildChannel'].each do |channel|
+      if chcount>0 then puts "<br>" end
+      chcount = chcount + 1
+      puts channel.to_s 
+    end
+  end
+  puts "</td>"
+  puts "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts                                                   "<td align=right><b>Time Servers:&nbsp;&nbsp;</b></td><td>"
+  tscount = 0
+  if !server['timeServer'].nil? then
+    server['timeServer'].each do |tsvr|
+      if tscount>0 then puts "<br>" end
+      tscount = tscount + 1
+      puts tsvr.to_s 
+    end
+  end
+  puts "</td>"
+  puts "</tr>"
+
+
+  puts "</table>"
+
+end
+
+
+#
+# Display disk entry
+#
+def display_disk(disk_no, disk_entry)
+
+  puts "<table>"
+  puts "<tr>"
+  puts "<td align=left><b>&nbsp;&nbsp;" + disk_no.to_s + ")&nbsp;&nbsp;</b></td><td>"+ disk_entry['cn'].to_s + "&nbsp;</td>"
+  puts "<td align=right><b>Size (GB):</b></td><td>"+ disk_entry['size'].to_s + "</td>"
+  puts "<td align=right><b>Device Alias:</b></td><td>"+ disk_entry['deviceAlias'].to_s + "&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Storage Location:</b></td><td>"+ disk_entry['storageLocation'].to_s + "&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Interface:</b></td><td>"+ disk_entry['interface'].to_s + "</td>"
+  puts "</tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Provisioning:</b></td><td>"+ disk_entry['provisioning'].to_s + "</td>"
+  puts "<td align=right><b>Description:</b></td><td colspan=3>"+ disk_entry['description'].to_s + "</td>"
+  puts "</tr>"
+  puts "</table>"
+end
+
+
+#
+# Display nic entry
+#
+def display_nic(nic_no, nic_entry)
+
+  puts "<table>"
+  puts "<tr>"
+  puts "<td align=left><b>&nbsp;&nbsp;" + nic_no.to_s + ")&nbsp;&nbsp;</b></td><td>"+ nic_entry['cn'].to_s + "&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>IP Address:</b></td><td>"+ nic_entry['ipHostNumber'].to_s + "</td>"
+  puts "<td align=right><b>Netmask:</b></td><td>"+ nic_entry['ipNetmaskNumber'].to_s + "&nbsp;</td>"
+  puts "<td align=right><b>Gateway:</b></td><td>"+ nic_entry['gateway'].to_s + "&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>mac Address:</b></td><td>"+ nic_entry['macAddress'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>IF Type:</b></td><td>"+ nic_entry['ifType'].to_s + "</td>"
+  puts "<td align=right><b>onBoot:</b></td><td>"+ nic_entry['onBoot'].to_s + "</td>"
+  puts "<td align=right><b>Boot Proto:</b></td><td>"+ nic_entry['bootProto'].to_s + "</td>"
+  puts "<td align=right><b>pxeBoot:</b></td><td>"+ nic_entry['pxeBoot'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>vLAN:</b></td><td>"+ nic_entry['vLAN'].to_s + "</td>"
+  puts "<td align=right><b>bridge:</b></td><td>"+ nic_entry['bridge'].to_s + "</td>"
+  puts "<td align=right><b>master:</b></td><td>"+ nic_entry['master'].to_s + "</td>"
+  puts "<td align=right><b>slave:</b></td><td>"+ nic_entry['slave'].to_s + "</td>"
+  puts "</tr>"
+  puts "<tr>"
+  puts "<td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>"
+  puts "<td align=right><b>Bonding Options:</b></td><td>"+ nic_entry['bondingOptions'].to_s + "</td>"
+  puts "<td align=right><b>ethToolOptions:</b></td><td>"+ nic_entry['ethtoolOptions'].to_s + "</td>"
+  puts "<td align=right><b>Description:</b></td><td colspan=3>"+ nic_entry['description'].to_s + "</td>"
+  puts "</tr>"
+  puts "</table>"
+end
+
+
+
+# 
+# Main
+#
+output_page_header_list
+
+cgi = CGI.new
+params = cgi.params # hash with field-names and values
+
+fqdn = params['fqdn'].to_s if params.has_key?"fqdn"
+
+read_from_cmdb=true
+managedserver = Hash.new
+disk_entry = Hash.new
+nic1_entry = Hash.new
+nic2_entry = Hash.new
+
+#Check to see if there was a form post:
+if !cgi['posted'].empty?
+then
+  # Form Post so populate entries from form data..
+  read_from_cmdb=nil
+  post_fields_valid=true
+
+  if params.has_key?"cn" and !params['cn'].to_s.empty? then
+    #puts "<p>cn='"+params['cn'].to_s+"'<br>"
+    cn = params['cn'].to_s.downcase 
+  else
+    post_fields_valid=nil
+    puts "<font color='red'>Error, Hostname field cannot be blank!</font><br><br>"
+    puts "<form><input type='button' value='Back to form' onclick='history.go(-1);return true;'></form>"
+    exit 1
+  end
+  dn = "cn="+cn+","+$basedomain
+  fqdn = cn + "." + $domainname
+  managedserver[:objectclass]      = "managedServer"
+  # must not be null:
+  managedserver[:cn]               = cn
+  # must not be null:
+  managedserver[:hostName]         = fqdn
+  managedserver[:vCluster]	   = params['vCluster'].to_s if !params['vCluster'].to_s.empty?
+  managedserver[:location]	   = params['location'].to_s if !params['location'].to_s.empty?
+  managedserver[:vDataCentre]	   = params['vDataCentre'].to_s if !params['vDataCentre'].to_s.empty?
+  managedserver[:environment]	   = params['environment'].to_s if !params['environment'].to_s.empty?
+  managedserver[:vESXHost]	   = params['vESXHost'].to_s if !params['vESXHost'].to_s.empty?
+  # must not be null:
+  if params['virtual'].to_s.empty? then managedserver[:virtual] = "FALSE" else managedserver[:virtual] = "TRUE" end
+  managedserver[:vMemory]	   = params['vMemory'].to_s if !params['vMemory'].to_s.empty?
+  managedserver[:serverClass]	   = params['serverClass'].to_s if !params['serverClass'].to_s.empty?
+  managedserver[:vSockets]	   = params['vSockets'].to_s if !params['vSockets'].to_s.empty?
+  # must not be null:
+  managedserver[:operatingSystem]  = params['operatingSystem'].to_s if !params['operatingSystem'].to_s.empty?
+  managedserver[:vCores]	   = params['vCores'].to_s if !params['vCores'].to_s.empty?
+  # must not be null:
+  managedserver[:osVersion]        = params['osVersion'].to_s if !params['osVersion'].to_s.empty?
+  managedserver[:vTemplate]	   = params['vTemplate'].to_s if !params['vTemplate'].to_s.empty?
+  managedserver[:manufacturer]     = params['manufacturer'].to_s if !params['manufacturer'].to_s.empty?
+  managedserver[:model]	           = params['model'].to_s if !params['model'].to_s.empty?
+  managedserver[:serverOwner]	   = params['serverOwner'].to_s if !params['serverOwner'].to_s.empty?
+  # must not be null:
+  managedserver[:cobblerProfile]   = params['cobblerProfile'].to_s if !params['cobblerProfile'].to_s.empty?
+  # must not be null:
+  managedserver[:rhnActivationKey] = params['rhnActivationKey'].to_s if !params['rhnActivationKey'].to_s.empty?
+  managedserver[:description]      = params['description'].to_s if !params['description'].to_s.empty?
+  # must not be null:
+  managedserver[:rhnBaseChannel]   = params['rhnBaseChannel'].to_s if !params['rhnBaseChannel'].to_s.empty?
+  # must not be null:
+  managedserver[:serverRole]       = Array.new(params['serverRole'].dup) if !params['serverRole'].to_s.empty?
+  managedserver[:nameServer]       = Array.new(params['nameServer'].dup) if !params['nameServer'].to_s.empty?
+  managedserver[:timeServer]       = Array.new(params['timeServer'].dup) if !params['timeServer'].to_s.empty?
+  managedserver[:rhnChildChannel]  = Array.new(params['rhnChildChannel'].dup) if !params['rhnChildChannel'].to_s.empty?
+  managedserver[:timeServer]       = Array.new(params['timeServer'].dup) if !params['timeSever'].to_s.empty?
+  managedserver[:timeServer]       = Array.new(params['timeServer'].dup) if !params['timeServer'].to_s.empty?
+
+  # DISK
+  disk_entry[:diskOrder]       = "1"
+  disk_entry[:objectclass]     = "storageDevice"
+  disk_entry[:cn]              = params['disk1_cn'].to_s if !params['disk1_cn'].to_s.empty?
+  disk_entry[:size]            = params['disk1_size'].to_s if !params['disk1_size'].to_s.empty?
+  if params['disk1_deviceAlias'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, DISK deviceAlias field cannot be blank</font></br>"
+  else 
+    disk_entry[:deviceAlias]   = params['disk1_deviceAlias'].to_s end
+  disk_entry[:storageLocation] = params['disk1_storageLocation'].to_s if !params['disk1_storageLocation'].to_s.empty?
+  if params['disk1_interface'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, DISK Interface field cannot be blank</font><br>"
+  else 
+    disk_entry[:interface]     = params['disk1_interface'].to_s end
+  disk_entry[:provisioning]    = params['disk1_provisioning'].to_s if !params['disk1_provisioning'].to_s.empty?
+  disk_entry[:description]     = params['disk1_description'].to_s if !params['disk1_description'].to_s.empty?
+
+  # NIC1
+  nic1_entry[:nicOrder]          = "1"
+  nic1_entry[:objectclass]       = "networkInterface"
+  nic1_entry[:cn]                = params['nic1_cn'].to_s if !params['nic1_cn'].to_s.empty?
+  if params['nic1_ipHostNumber'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC1 IP Address field cannot be blank</font><br>"
+  else 
+    nic1_entry[:ipHostNumber]    = params['nic1_ipHostNumber'].to_s end
+  if params['nic1_ipNetmaskNumber'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC1 Netmask field cannot be blank</font><br>"
+  else 
+    nic1_entry[:ipNetmaskNumber] = params['nic1_ipNetmaskNumber'].to_s end
+  if params['nic1_gateway'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC1 Gateway field cannot be blank</font><br>"
+  else 
+    nic1_entry[:gateway]         = params['nic1_gateway'].to_s end
+  nic1_entry[:macAddress]        = params['nic1_macAddress'].to_s if !params['nic1_macAddress'].to_s.empty?
+  if params['nic1_ifType'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC1 ifType field cannot be blank</font><br>"
+  else 
+    nic1_entry[:ifType]    = params['nic1_ifType'].to_s end
+  if params['nic1_onBoot'].to_s.empty? then nic1_entry[:onBoot] = "FALSE" else nic1_entry[:onBoot] = "TRUE" end
+  nic1_entry[:bootProto]         = params['nic1_bootProto'].to_s if !params['nic1_bootProto'].to_s.empty?
+  if params['nic1_pxeBoot'].to_s.empty? then nic1_entry[:pxeBoot] = "FALSE" else nic1_entry[:pxeBoot] = "TRUE" end
+  if params['nic1_vlan'].to_s.empty? then nic1_entry[:vlan] = "FALSE" else nic1_entry[:vlan] = "TRUE" end
+  if params['nic1_bridge'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC1 Bridge field cannot be blank</font><br>"
+  else 
+    nic1_entry[:bridge]          = params['nic1_bridge'].to_s end
+  nic1_entry[:master]            = params['nic1_master'].to_s if !params['nic1_master'].to_s.empty?
+  if params['nic1_slave'].to_s.empty? then nic1_entry[:slave] = "FALSE" else nic1_entry[:slave] = "TRUE" end
+  nic1_entry[:bondingOptions]    = params['nic1_bondingOptions'].to_s if !params['nic1_bondingOptions'].to_s.empty?
+  nic1_entry[:ethToolOptions]    = params['nic1_ethToolOptions'].to_s if !params['nic1_ethToolOptions'].to_s.empty?
+  nic1_entry[:description]       = params['nic1_description'].to_s if !params['nic1_description'].to_s.empty?
+
+  # NIC2
+  nic2_entry[:nicOrder]          = "2"
+  nic2_entry[:objectclass]       = "networkInterface"
+  nic2_entry[:cn]                = params['nic2_cn'].to_s if !params['nic2_cn'].to_s.empty?
+  if params['nic2_ipHostNumber'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC2 IP Address field cannot be blank</font><br>"
+  else 
+    nic2_entry[:ipHostNumber]    = params['nic2_ipHostNumber'].to_s end
+  if params['nic2_ipNetmaskNumber'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC2 Netmask field cannot be blank</font><br>"
+  else 
+    nic2_entry[:ipNetmaskNumber] = params['nic2_ipNetmaskNumber'].to_s end
+  nic2_entry[:gateway]           = params['nic2_gateway'].to_s if !params['nic2_gateway'].to_s.empty?
+  if !params['nic2_gateway'].to_s.empty? then
+    nic2_entry[:gateway]         = params['nic2_gateway'].to_s end
+  nic2_entry[:macAddress]        = params['nic2_macAddress'].to_s if !params['nic2_macAddress'].to_s.empty?
+  if params['nic2_ifType'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC1 ifType field cannot be blank</font><br>"
+  else 
+    nic2_entry[:ifType]    = params['nic2_ifType'].to_s end
+  if params['nic2_onBoot'].to_s.empty? then nic2_entry[:onBoot] = "FALSE" else nic2_entry[:onBoot] = "TRUE" end
+  nic2_entry[:bootProto]         = params['nic2_bootProto'].to_s if !params['nic2_bootProto'].to_s.empty?
+  if params['nic2_pxeBoot'].to_s.empty? then nic2_entry[:pxeBoot] = "FALSE" else nic2_entry[:pxeBoot] = "TRUE" end
+  if params['nic2_vlan'].to_s.empty? then nic2_entry[:vlan] = "FALSE" else nic2_entry[:vlan] = "TRUE" end
+  if params['nic2_bridge'].to_s.empty? then
+    post_fields_valid=nil
+    puts "<font color='red'>Error, NIC2 Bridge field cannot be blank</font><br>"
+  else 
+    nic2_entry[:bridge]          = params['nic2_bridge'].to_s end
+  nic2_entry[:master]            = params['nic2_master'].to_s if !params['nic2_master'].to_s.empty?
+  if params['nic2_slave'].to_s.empty? then nic2_entry[:slave] = "FALSE" else nic2_entry[:slave] = "TRUE" end
+  nic2_entry[:bondingOptions]    = params['nic2_bondingOptions'].to_s if !params['nic2_bondingOptions'].to_s.empty?
+  nic2_entry[:ethToolOptions]    = params['nic2_ethToolOptions'].to_s if !params['nic2_ethToolOptions'].to_s.empty?
+  nic2_entry[:description]       = params['nic2_description'].to_s if !params['nic2_description'].to_s.empty?
+
+  if !post_fields_valid
+    puts "<br>"
+    puts "<font color=red>Cannot save server ("+ fqdn +") in CMDB, please go back and correct form data.</font><br><br>"
+    puts "<form><input type='button' value='Back to form' onclick='history.go(-1);return true;'></form>"
+    exit 1
+  end
+
+  # Persist to the database
+  result = persistServerEntry(dn, managedserver, disk_entry, nic1_entry, nic2_entry)
+
+  if result.to_s == "true" then
+
+    if cgi['posted'] == "create" then puts "<br><font color='red'>Your new system has been saved:</font>" end
+    if cgi['posted'] == "edit" then puts "<br><font color='red'>Your system has been updated:</font>" end
+  else
+    puts "<br><font color='red'>Something went wrong, entry not persisted to the CMDB</font>"
+  end
+
+end
+
+#
+# Read system details and display
+#
+puts "<h1>System Details: " + fqdn + "</h1>"
+
+managedserver = read_server_by_fqdn(fqdn)
+
+if managedserver.to_s.empty? then
+  puts "<br>"
+  puts "<font color=red>Something went wrong, server ("+ fqdn +") not found in CMDB</font><br><br>"
+  puts "<form><input type='button' value='Go Back' onclick='history.go(-1);return true;'></form>"
+  exit 1
+end
+
+dn = managedserver['dn'].to_s
+
+display_server(managedserver)
+
+
+puts "<br>"
+puts "<b>Disks:</b><br>"
+
+numdisks=0
+disks=TRUE
+while disks do
+  disk_entry = read_disk_by_dn(dn, (numdisks + 1).to_s)
+  if (disk_entry.to_s).empty?  then
+    # No more disks
+    disks=FALSE
+  else
+    numdisks = numdisks+1
+    display_disk(numdisks, disk_entry)
+  end
+end
+
+puts "<br>"
+puts "<b>NICs:</b><br>"
+
+numnics=0
+nics=TRUE
+while nics do
+  nic_entry = read_nic_by_dn(dn, (numnics + 1).to_s)
+  if (nic_entry.to_s).empty?  then
+    # No more disks
+    nics=FALSE
+  else
+    numnics = numnics+1
+    if numnics > 1 then puts "<br>" end
+    display_nic(numnics, nic_entry)
+  end
+end
+
+
+puts "<br>"
+puts "<table><tr>"
+puts "<td><font size=+1><a href='/cmdb/edit?fqdn="+fqdn+"'>Edit</a></td><td>|&nbsp;</font></td>"
+puts "<td><font size=+1><a href='/cmdb/delete?fqdn="+fqdn+"'>Delete</a></td><td>|&nbsp;</font></td>"
+puts "<td><font size=+1><a href='/cmdb/list'>Home</a></font></td></tr></table>"
+
+output_page_footer
+
+exit 0
+

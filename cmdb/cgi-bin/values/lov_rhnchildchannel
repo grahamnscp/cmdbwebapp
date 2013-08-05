@@ -1,0 +1,13 @@
+clone-epel_for_rhel6_x86_64-20130607
+clone-sw-custom-rpms-rhel6
+stable-rhel-x86_64-server-optional-6-20130607
+stable-rhel-x86_64-server-supplementary-6-20130607
+stable-rhn-tools-thel-x86_64-server-6-20130607
+clone-epel_for_rhel5_x86_64
+clone-sw-custom-rpms-rhel5
+stable-rhn-tools-rhel-x86_64-server-5
+stable-rhel-x86_64-server-supplementary-5
+stable-rhn-tools-rhel-x86_64-server-5.4
+stable-rhel-x86_64-server-supplementary-5.4
+clone-rhel-x86_64-as-4-extras
+clone-rhn-tools-rhel-4-as-x86_64

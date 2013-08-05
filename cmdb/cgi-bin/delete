@@ -1,0 +1,30 @@
+#!/usr/bin/ruby
+
+# Includes
+require 'helper.rb'
+
+
+# 
+# Main
+#
+output_page_header_box
+
+fqdn = get_param_fqdn
+
+puts "<h1>Delete Entry: " + fqdn + "</h1>"
+
+result = delete_entry_by_fqdn fqdn
+
+if result.to_s == "true" then
+  puts "<center><blink><font color=red><b>Entry Deleted</b></font></blink></center>"
+else
+  puts "<center><font color=red><b>Delete Failed</b></font></center>"
+end
+
+puts "<br>"
+puts "<font size=+1><a href='/cmdb/list'>Home</a></font>"
+
+output_page_footer
+
+exit 0
+

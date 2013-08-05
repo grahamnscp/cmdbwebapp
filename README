@@ -1,0 +1,24 @@
+CMDB Web App
+
+This is a simple CGI script application written in Ruby to maintain SOE CMDB entries in an LDAP backend.
+
+The app consists of the following main programs:
+
+list   - The Home page, lists all the managedServer entries in the DIT
+show   - Displays the selected system entry, it's first disk and two network NICs (kind of hard coded config)
+         Importantly, the show script also handles the form posts from the create and edit forms, validates the data and when all okay persists it to the CMDB and then reads it back for display.
+create - HTML form to create a new system, displays dropdowns and picklists etc from various LOV files.
+         Some entries are defaulted in the create html itself, made creating a new entry quicker when some typical values were the same.
+edit   - HTML form to edit an existing entry, acts largely the same as the create form but entries are read from the CMDB first and their values selected in the various dropdown lists etc.  Note that an edited entry is deleted and saved so it is possible to get a lost update scenario with multiple users.
+delete - Deletes the entry without confirmation check!
+
+
+and has common helper elements:
+
+globals.rb - Old C programmers like globals and types files etc
+helper.rb - Broke out common functions and put them in this helper, LDAP backend hidden here to.
+
+
+Note that the page header and fotter is in the html files so they are common.
+
+
