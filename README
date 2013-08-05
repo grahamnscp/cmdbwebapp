@@ -32,6 +32,6 @@ helper.rb  - Broke out common functions and put them in this helper, LDAP backen
              hidden here to.
 
 
-Note that the page header and fotter is in the html files so they are common.
+Note that the page header and footer are in the html files so they are common.
 
 
